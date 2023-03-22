@@ -1,70 +1,92 @@
-from Note import Note
-import NotesAction
 import csv
 
-# MAIN
-def getNotes():
+class Note:
+    def __init__(self, title, message):
+        self.title = title
+        self.message = message
+
+def get_notes():
     notes = []
-    with open('notes.csv',) as csvfile:
+    with open('notes.csv') as csvfile:
         csv_reader = csv.reader(csvfile, delimiter=',')
-        n = Note("", "")
         for row in csv_reader:
-            n.title = row[0]
-            n.message = row[1]
+            n = Note(row[0], row[1])
             notes.append(n)
     return notes
 
-userChoice = ""
+def add_note():
+    note = Note("", "")
+    note.title = input("Enter Title: ")
+    note.message = input("Enter Message: ")
+    notes = get_notes()
+    notes.append(note)
 
-while userChoice != "q":
+    with open('notes.csv', 'w') as csvfile:
+        csv_writer = csv.writer(csvfile, delimiter=',')
+
+        for line in notes:
+            csv_writer.writerow([line.title, line.message])
+    print("Note added successfully.")
+
+def edit_note():
+    message_title = input("Enter Title of Message to Edit: ")
+    new_message = input("Enter New Message: ")
+    notes = get_notes()
+
+    for note in notes:
+        if note.title == message_title:
+            note.message = new_message
+
+    with open('notes.csv', 'w') as csvfile:
+        csv_writer = csv.writer(csvfile, delimiter=',')
+
+        for line in notes:
+            csv_writer.writerow([line.title, line.message])
+    print("Note edited successfully.")
+
+def remove_note():
+    note_to_remove = input("Enter Title of Note to Remove: ")
+    notes = get_notes()
+
+    for note in notes:
+        if note.title == note_to_remove:
+            notes.remove(note)
+
+    with open('notes.csv', 'w') as csvfile:
+        csv_writer = csv.writer(csvfile, delimiter=',')
+
+        for line in notes:
+            csv_writer.writerow([line.title, line.message])
+    print("Note removed successfully.")
+
+def view_notes():
+    notes = get_notes()
+
+    for note in notes:
+        print(f"Title: {note.title}, Message: {note.message}")
+
+    if not notes:
+        print("No notes found.")
+
+user_choice = ""
+while user_choice != "q":
     print("Enter [q] at anytime to quit")
-    userChoice = input("(1)Add Note (2)Edit Note (3)Delete Note (4)View Notes: ".lower())
+    user_choice = input("(1) Add Note (2) Edit Note (3) Delete Note (4) View Notes: ")
 
-    if userChoice == "1":
-        note = Note("", "")
-        note.title = input("Enter Title: ")
-        note.message = input("Enter Message: ")
-        notes = getNotes()
-        notes.append(note)
+    if user_choice == "1":
+        add_note()
 
-        with open('notes.csv', 'w',) as csvfile:
-            spamwriter = csv.writer(csvfile, delimiter=',')
+    elif user_choice == "2":
+        edit_note()
 
-            for line in notes:
-                spamwriter.writerow([line.title,line.message])
+    elif user_choice == "3":
+        remove_note()
 
-    elif userChoice == "2":
-        messageTitle = input("Enter Title of Message to Edit: ")
-        newMessage = input("Enter New Message: ")
+    elif user_choice == "4":
+        view_notes()
 
-        isSuccessful = NotesAction.editNote(notes, messageTitle, newMessage)
-
-        if isSuccessful:
-            print("Message has been updated")
-        else:
-            print("Unsuccessful, please try again")
-
-    elif userChoice == "3":
-        noteToRemove = input("Enter Title of Note to Remove:")
-
-        isSuccessful = NotesAction.removeNote(notes, noteToRemove)
-
-        if isSuccessful:
-            print("Message has been removed.")
-        else:
-            print("Unsuccessful, please try again.")
-
-    elif userChoice == "4":
-
-        f = open('path/to/csv_file', encoding='UTF8')
-
-        csv_reader = open("notes.csv", encoding='UTF8')
-
-        for line in csv_reader:
-            print(f"Title: {line[0]}, Message: {line[1]}")
-        f.close()
-
-    elif userChoice == "q":
+    elif user_choice == "q":
         print("Goodbye")
+
     else:
         print("Please make a valid selection")
